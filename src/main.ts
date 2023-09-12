@@ -83,6 +83,15 @@ export default class PomoTimerPlugin extends Plugin {
 				return false;
 			}
 		});
+
+		this.addCommand({
+			id: 'handle-timer-end',
+			name: 'Handle Timer End',
+			callback: () => {
+				this.timer.handleTimerEnd();
+			}
+		});
+
 	}
 
 

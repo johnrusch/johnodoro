@@ -1,10 +1,10 @@
 {
-	"id": "obsidian-statusbar-pomo",
-	"name": "Status Bar Pomodoro Timer",
-	"version": "0.1.14",
+	"id": "johnodoro",
+	"name": "Johnodoro",
+	"version": "0.1",
 	"minAppVersion": "0.9.12",
-	"description": "Adds a pomodoro timer to your status bar.",
-	"author": "kzhovn",
+	"description": "Adds a johnodoro timer to your status bar.",
+	"author": "johnrusch",
 	"authorUrl": "",
 	"isDesktopOnly": true
 }
