@@ -356,7 +356,7 @@ export class Timer {
 
     let lines = existingContent.split("\n");
     let workSectionIndex = lines.findIndex(
-      (line: string) => line.trim() === "## Pomodoro Logs"
+      (line: string) => line.trim().includes(this.settings.logHeader)
     );
     let nextSectionIndex = lines.findIndex(
       (line: string, i: number) => i > workSectionIndex && line.startsWith("##")
@@ -404,7 +404,6 @@ export class Timer {
     // } else {
     //   lines.splice(nextSectionIndex, 0, logText); // insert logText before the next section
     // }
-      this.plugin.
     let newContent = lines.join("\n");
     await this.plugin.app.vault.adapter.write(filePath, newContent);
   }

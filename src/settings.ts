@@ -107,7 +107,7 @@ export class PomoSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Autostart timer")
-			.setDesc("Start each pomodoro and break automatically. When off, click the sidebar icon on the left or use the toggle pause command to start the next timer")
+			.setDesc("Start each pomodoro and break automatically. When off, click the sidebar icon on the left or usetext pause command to start the next timer")
 			.addToggle(toggle => toggle
 					.setValue(this.plugin.settings.autostartTimer)
 					.onChange(value => {
@@ -272,7 +272,7 @@ export class PomoSettingTab extends PluginSettingTab {
 			new Setting(containerEl)
 			.setName("Log header")
 			.setDesc("Set header to add logs underneath")
-			.addToggle(toggle => toggle
+			.addText(text => text
 					.setValue(this.plugin.settings.logHeader)
 					.onChange(value => {
 						this.plugin.settings.logHeader = value;
