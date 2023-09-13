@@ -34,6 +34,7 @@ export class Timer {
   activeNote: TFile;
   whiteNoisePlayer: WhiteNoise;
   editor: Editor;
+  dailyNotePath: string;
 
   constructor(plugin: PomoTimerPlugin) {
     this.plugin = plugin;
@@ -88,12 +89,15 @@ export class Timer {
       this.pomosSinceStart += 1;
 
       if (this.settings.logging === true) {
-        await this.logPomo();
+        await this.endTimerLog(this.dailyNotePath);
       }
     } else if (this.mode === Mode.ShortBreak || this.mode === Mode.LongBreak) {
+      if (this.settings.logging === true) {
+        await this.startTimerLog(this.dailyNotePath);
+      }
       this.cyclesSinceLastAutoStop += 1;
     }
-
+    
     //switch mode
     if (this.settings.notificationSound === true) {
       //play sound end of timer
@@ -170,12 +174,9 @@ export class Timer {
   async startTimer(mode: Mode = null): Promise<void> {
     this.setupTimer(mode);
     this.paused = false; //do I need this?
-    console.log("startTimer");
     if (this.settings.logToDaily === true) {
-      console.log("logToDaily")
-      let file = (await getDailyNoteFile()).path;
-      await this.startTimerLog(file);
-      this.setLogFile();
+      this.dailyNotePath = (await getDailyNoteFile()).path;
+      await this.startTimerLog(this.dailyNotePath);
     }
     this.modeStartingNotification();
 
@@ -322,8 +323,8 @@ export class Timer {
   //from Note Refactor plugin by James Lynch, https://github.com/lynchjames/note-refactor-obsidian/blob/80c1a23a1352b5d22c70f1b1d915b4e0a1b2b33f/src/obsidian-file.ts#L69
   async appendFile(filePath: string, logText: string): Promise<void> {
     let existingContent = await this.plugin.app.vault.adapter.read(filePath);
-    if (!existingContent.includes("## Work")) {
-      console.log('Heading "## Work" was not found in the file.');
+    if (!existingContent.includes("## Pomodoro Logs")) {
+      console.log('Heading "## Pomodoro Logs" was not found in the file.');
       return;
     }
 
@@ -389,24 +390,23 @@ export class Timer {
       (line: string, i: number) => i > workSectionIndex && line.startsWith("##")
     );
 
-    // change the workSectionIndex line by changing the ⏰ to ✅
-    lines[workSectionIndex] = lines[workSectionIndex].replace("⏰", "✅");
+    // change the workSectionIndex line by changing the ⏰ to 🍅
+    lines[workSectionIndex] = lines[workSectionIndex].replace("⏰", "🍅");
 
     // insert a line after the workSectionIndex line that is a tabbed bullet point with the end time
-    const logText: string = `	- ${moment().format("hh:mm A")} - `;
+    const logText: string = `    - ${moment().format("hh:mm A")} - `;
 
-    if (nextSectionIndex === -1) {
-      // "## Work Logs" is the last section
-      lines.push(logText); // append logText at the end
-    } else {
-      lines.splice(nextSectionIndex, 0, logText); // insert logText before the next section
-    }
-
+    // insert logText in a new line after the workSectionIndex line
+    lines.splice(workSectionIndex + 1, 0, logText);
+    // if (nextSectionIndex === -1) {
+    //   // "## Work Logs" is the last section
+    //   lines.push(logText); // append logText at the end
+    // } else {
+    //   lines.splice(nextSectionIndex, 0, logText); // insert logText before the next section
+    // }
+      this.plugin.
     let newContent = lines.join("\n");
     await this.plugin.app.vault.adapter.write(filePath, newContent);
-
-    
-
   }
 
   setLogFile() {

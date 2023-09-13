@@ -23,6 +23,7 @@ export interface PomoSettings {
 	logActiveNote: boolean;
 	fancyStatusBar: boolean;
 	whiteNoise: boolean;
+	logHeader: string;
 }
 
 export const DEFAULT_SETTINGS: PomoSettings = {
@@ -44,6 +45,7 @@ export const DEFAULT_SETTINGS: PomoSettings = {
 	logActiveNote: false,
 	fancyStatusBar: false,
 	whiteNoise: false,
+	logHeader: "## Pomodoro Logs"
 }
 
 
@@ -264,6 +266,16 @@ export class PomoSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.logActiveNote)
 					.onChange(value => {
 						this.plugin.settings.logActiveNote = value;
+						this.plugin.saveSettings();
+					}));
+
+			new Setting(containerEl)
+			.setName("Log header")
+			.setDesc("Set header to add logs underneath")
+			.addToggle(toggle => toggle
+					.setValue(this.plugin.settings.logHeader)
+					.onChange(value => {
+						this.plugin.settings.logHeader = value;
 						this.plugin.saveSettings();
 					}));
 		}
