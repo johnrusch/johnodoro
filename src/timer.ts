@@ -358,36 +358,35 @@ export class Timer {
     let workSectionIndex = lines.findIndex((line: string) =>
       line.trim().includes(this.settings.logHeader)
     );
-    let nextSectionIndex = lines.findIndex(
-      (line: string, i: number) => i > workSectionIndex && line.startsWith("##")
+    let endSectionIndex = lines.findIndex(
+      (line: string, i: number) => i > workSectionIndex && line.startsWith("---")
     );
 
     const logText: string = `- ⏰ ${this.startTime.format("hh:mm A")} - `;
 
-    if (nextSectionIndex === -1) {
+    if (endSectionIndex === -1) {
       // "## Work Logs" is the last section
       lines.push(logText); // append logText at the end
     } else {
-      // insert logText after the last line that starts with a "-" in the workSectionIndex section
-      let lastLineIndex = lines
-        .slice(workSectionIndex, nextSectionIndex)
-        .reverse()
-        .findIndex((line: string) => line.trim().startsWith("- "));
-
-      lastLineIndex = nextSectionIndex - 1 - lastLineIndex;
-
-      console.log(
-        "adding logText",
-        lines[workSectionIndex],
-        lines[nextSectionIndex],
-        lines[lastLineIndex]
-      );
-      // Insert logText after the last bullet point found, or at the start of the next section if no bullet points are found
-      lines.splice(
-        lastLineIndex !== -1 ? lastLineIndex + 1 : nextSectionIndex,
-        0,
-        logText
-      );
+        let lastLineIndex = lines
+          .slice(workSectionIndex, endSectionIndex)
+          .reverse()
+          .findIndex((line: string) => line.trim().startsWith("- "));
+  
+        lastLineIndex = endSectionIndex - 1 - lastLineIndex;
+  
+        console.log(
+          "adding logText",
+          lines[workSectionIndex],
+          lines[endSectionIndex],
+          lines[lastLineIndex]
+        );
+        // Insert logText after the last bullet point found, or at the start of the next section if no bullet points are found
+        lines.splice(
+          lastLineIndex !== -1 ? lastLineIndex + 1 : endSectionIndex,
+          0,
+          logText
+        );
     }
 
     let newContent = lines.join("\n");
