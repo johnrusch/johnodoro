@@ -97,7 +97,7 @@ export class Timer {
       }
       this.cyclesSinceLastAutoStop += 1;
     }
-    
+
     //switch mode
     if (this.settings.notificationSound === true) {
       //play sound end of timer
@@ -355,8 +355,8 @@ export class Timer {
     }
 
     let lines = existingContent.split("\n");
-    let workSectionIndex = lines.findIndex(
-      (line: string) => line.trim().includes(this.settings.logHeader)
+    let workSectionIndex = lines.findIndex((line: string) =>
+      line.trim().includes(this.settings.logHeader)
     );
     let nextSectionIndex = lines.findIndex(
       (line: string, i: number) => i > workSectionIndex && line.startsWith("##")
@@ -368,7 +368,26 @@ export class Timer {
       // "## Work Logs" is the last section
       lines.push(logText); // append logText at the end
     } else {
-      lines.splice(nextSectionIndex, 0, logText); // insert logText before the next section
+      // insert logText after the last line that starts with a "-" in the workSectionIndex section
+      let lastLineIndex = lines
+        .slice(workSectionIndex, nextSectionIndex)
+        .reverse()
+        .findIndex((line: string) => line.trim().startsWith("- "));
+
+      lastLineIndex = nextSectionIndex - 1 - lastLineIndex;
+
+      console.log(
+        "adding logText",
+        lines[workSectionIndex],
+        lines[nextSectionIndex],
+        lines[lastLineIndex]
+      );
+      // Insert logText after the last bullet point found, or at the start of the next section if no bullet points are found
+      lines.splice(
+        lastLineIndex !== -1 ? lastLineIndex + 1 : nextSectionIndex,
+        0,
+        logText
+      );
     }
 
     let newContent = lines.join("\n");
@@ -383,8 +402,8 @@ export class Timer {
     }
 
     let lines = existingContent.split("\n");
-    let workSectionIndex = lines.findIndex(
-      (line: string) => line.includes(this.startTime.format("hh:mm A"))
+    let workSectionIndex = lines.findIndex((line: string) =>
+      line.includes(this.startTime.format("hh:mm A"))
     );
     let nextSectionIndex = lines.findIndex(
       (line: string, i: number) => i > workSectionIndex && line.startsWith("##")
@@ -394,7 +413,7 @@ export class Timer {
     lines[workSectionIndex] = lines[workSectionIndex].replace("⏰", "🍅");
 
     // insert a line after the workSectionIndex line that is a tabbed bullet point with the end time
-    const logText: string = `    - ${moment().format("hh:mm A")} - `;
+    const logText: string = `    - ${this.endTime.format("hh:mm A")} - `;
 
     // insert logText in a new line after the workSectionIndex line
     lines.splice(workSectionIndex + 1, 0, logText);
