@@ -35,6 +35,7 @@ export class Timer {
   whiteNoisePlayer: WhiteNoise;
   editor: Editor;
   dailyNotePath: string;
+  lastStart: moment.Moment;
 
   constructor(plugin: PomoTimerPlugin) {
     this.plugin = plugin;
@@ -359,34 +360,42 @@ export class Timer {
       line.trim().includes(this.settings.logHeader)
     );
     let endSectionIndex = lines.findIndex(
-      (line: string, i: number) => i > workSectionIndex && line.startsWith("---")
+      (line: string, i: number) =>
+        i > workSectionIndex && line.startsWith("---")
     );
-
-    const logText: string = `- ⏰ ${this.startTime.format("hh:mm A")} - `;
-
+    this.lastStart = moment();
+    const logText: string = `- ⏰ ${this.lastStart.format("hh:mm A")} - `;
+    console.log("this.lastStart", this.lastStart.format("hh:mm A"));
     if (endSectionIndex === -1) {
       // "## Work Logs" is the last section
       lines.push(logText); // append logText at the end
     } else {
-        let lastLineIndex = lines
-          .slice(workSectionIndex, endSectionIndex)
-          .reverse()
-          .findIndex((line: string) => line.trim().startsWith("- "));
-  
-        lastLineIndex = endSectionIndex - 1 - lastLineIndex;
-  
-        console.log(
-          "adding logText",
-          lines[workSectionIndex],
-          lines[endSectionIndex],
-          lines[lastLineIndex]
-        );
-        // Insert logText after the last bullet point found, or at the start of the next section if no bullet points are found
+      let lastLineIndex = lines
+        .slice(workSectionIndex, endSectionIndex)
+        .reverse()
+        .findIndex((line: string) => line.trim().startsWith("- "));
+
+      lastLineIndex = endSectionIndex - 1 - lastLineIndex;
+
+      // console.log(
+      //   "adding logText",
+      //   lines[workSectionIndex],
+      //   lines[endSectionIndex],
+      //   lines[lastLineIndex],
+      //   "end === last line? ",
+      //   endSectionIndex === lastLineIndex
+      // );
+
+      if (endSectionIndex === lastLineIndex) {
+        // insert logtext after the workSectionIndex line
+        lines.splice(workSectionIndex + 1, 0, logText);
+      } else {
         lines.splice(
           lastLineIndex !== -1 ? lastLineIndex + 1 : endSectionIndex,
           0,
           logText
         );
+      }
     }
 
     let newContent = lines.join("\n");
@@ -402,17 +411,18 @@ export class Timer {
 
     let lines = existingContent.split("\n");
     let workSectionIndex = lines.findIndex((line: string) =>
-      line.includes(this.startTime.format("hh:mm A"))
+      line.includes(this.lastStart.format("hh:mm A"))
     );
     let nextSectionIndex = lines.findIndex(
       (line: string, i: number) => i > workSectionIndex && line.startsWith("##")
     );
-
+    console.log("this.startTime", this.lastStart.format("hh:mm A"));
+    console.log("workSectionIndex", workSectionIndex);
     // change the workSectionIndex line by changing the ⏰ to 🍅
     lines[workSectionIndex] = lines[workSectionIndex].replace("⏰", "🍅");
 
     // insert a line after the workSectionIndex line that is a tabbed bullet point with the end time
-    const logText: string = `    - ${this.endTime.format("hh:mm A")} - `;
+    const logText: string = "    - ";
 
     // insert logText in a new line after the workSectionIndex line
     lines.splice(workSectionIndex + 1, 0, logText);
